@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 8080
 
 // Environment variable from Railway
 const ELEVEN_API_KEY = process.env.ELEVENLABS_API_KEY
+console.log("Eleven API Key Loaded:", ELEVEN_API_KEY ? "YES" : "NO")
 
 // Stable public voice
 const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
