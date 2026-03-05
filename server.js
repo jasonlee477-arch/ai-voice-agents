@@ -97,7 +97,7 @@ app.post("/board", (req, res) => {
 
 /* ---------- SERVER START ---------- */
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log("AI Call Server running on port " + PORT);
