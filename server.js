@@ -9,39 +9,44 @@ app.use(express.json());
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-/* -----------------------------
+/* --------------------------------
    ElevenLabs Voice Generator
-------------------------------*/
+-------------------------------- */
 
 async function generateVoice(text) {
-  const response = await axios({
-    method: "POST",
-    url: "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL",
-    headers: {
-      "xi-api-key": process.env.ELEVEN_API_KEY,
-      "Content-Type": "application/json"
-    },
-    data: {
-      text: text,
-      model_id: "eleven_multilingual_v2"
-    },
-    responseType: "arraybuffer"
-  });
+  try {
+    const response = await axios({
+      method: "POST",
+      url: "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM",
+      headers: {
+        Authorization: `Bearer ${process.env.ELEVEN_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      data: {
+        text: text,
+        model_id: "eleven_multilingual_v2"
+      },
+      responseType: "arraybuffer"
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    console.error("ElevenLabs Error:", error.response?.data || error.message);
+    throw error;
+  }
 }
 
-/* -----------------------------
-   Root Route
-------------------------------*/
+/* --------------------------------
+   Health Check
+-------------------------------- */
 
 app.get("/", (req, res) => {
   res.send("Aqua Decor AI Voice Agent Running 🚀");
 });
 
-/* -----------------------------
-   Twilio Call Webhook
-------------------------------*/
+/* --------------------------------
+   Twilio Voice Webhook
+-------------------------------- */
 
 app.post("/voice", async (req, res) => {
 
@@ -60,7 +65,7 @@ app.post("/voice", async (req, res) => {
 
   } catch (error) {
 
-    console.error(error);
+    console.log("Fallback to Twilio voice");
 
     const twiml = new VoiceResponse();
 
@@ -70,14 +75,12 @@ app.post("/voice", async (req, res) => {
 
     res.type("text/xml");
     res.send(twiml.toString());
-
   }
-
 });
 
-/* -----------------------------
+/* --------------------------------
    Server Start
-------------------------------*/
+-------------------------------- */
 
 const PORT = process.env.PORT || 8080;
 
