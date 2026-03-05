@@ -1,83 +1,64 @@
-const express = require("express");
-const axios = require("axios");
-const twilio = require("twilio");
+const express = require("express")
+const axios = require("axios")
 
-const app = express();
+const app = express()
+app.use(express.urlencoded({ extended: true }))
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+const PORT = process.env.PORT || 8080
 
-const VoiceResponse = twilio.twiml.VoiceResponse;
-
-/* --------------------------
-   Root Check
--------------------------- */
+const ELEVEN_API_KEY = process.env.ELEVENLABS_API_KEY
+const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 
 app.get("/", (req, res) => {
-  res.send("Aqua Decor AI Voice Agent Running 🚀");
-});
+  res.send("Aqua Decor AI Voice Agent Running 🚀")
+})
 
-/* --------------------------
-   ElevenLabs Audio Endpoint
--------------------------- */
+app.post("/voice", (req, res) => {
+
+  const twiml = `
+<Response>
+    <Play>https://ai-voice-agents-production.up.railway.app/audio</Play>
+</Response>
+`
+
+  res.type("text/xml")
+  res.send(twiml)
+})
 
 app.get("/audio", async (req, res) => {
 
   try {
 
-    const message =
-      "Namaste. Aqua Decor mein aapka swagat hai. Hum signage boards, acrylic letters, steel letters aur shop branding services provide karte hain. Kripya batayein aapko kis tarah ki service chahiye.";
-
-    const response = await axios({
-      method: "POST",
-      url: "https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM",
-      headers: {
-        "xi-api-key": process.env.ELEVEN_API_KEY,
-        "Content-Type": "application/json"
-      },
-      data: {
-        text: message,
+    const response = await axios.post(
+      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
+      {
+        text: "Aqua Decor mein aapka swagat hai. Kripya bataye aapko kis tarah ki signage ya branding service chahiye.",
         model_id: "eleven_multilingual_v2"
       },
-      responseType: "arraybuffer"
-    });
+      {
+        headers: {
+          "xi-api-key": ELEVEN_API_KEY,
+          "Content-Type": "application/json"
+        },
+        responseType: "arraybuffer"
+      }
+    )
 
     res.set({
       "Content-Type": "audio/mpeg"
-    });
+    })
 
-    res.send(response.data);
+    res.send(response.data)
 
-  } catch (error) {
+  } catch (err) {
 
-    console.log("ElevenLabs error:", error.response?.data || error.message);
+    console.log("ElevenLabs Error:", err.response?.data || err.message)
 
-    res.status(500).send("Voice generation failed");
+    res.status(500).send("Voice generation failed")
   }
-});
 
-/* --------------------------
-   Twilio Voice Webhook
--------------------------- */
+})
 
-app.post("/voice", (req, res) => {
-
-  const twiml = new VoiceResponse();
-
-  const audioUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/audio`;
-
-  twiml.play(audioUrl);
-
-  res.type("text/xml");
-  res.send(twiml.toString());
-});
-
-/* --------------------------
-   Start Server
--------------------------- */
-
-const PORT = process.env.PORT || 8080;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("AI Call Server running on port " + PORT);
-});
+app.listen(PORT, () => {
+  console.log("AI Call Server running on port", PORT)
+})
