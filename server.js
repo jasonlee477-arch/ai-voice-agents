@@ -6,18 +6,25 @@ app.use(express.urlencoded({ extended: true }))
 
 const PORT = process.env.PORT || 8080
 
+// Environment variable from Railway
 const ELEVEN_API_KEY = process.env.ELEVENLABS_API_KEY
+
+// Stable public voice
 const VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
 
+
+// Root test route
 app.get("/", (req, res) => {
   res.send("Aqua Decor AI Voice Agent Running 🚀")
 })
 
+
+// Twilio call webhook
 app.post("/voice", (req, res) => {
 
   const twiml = `
 <Response>
-    <Play>https://ai-voice-agents-production.up.railway.app/audio</Play>
+  <Play>https://ai-voice-agents-production.up.railway.app/audio</Play>
 </Response>
 `
 
@@ -25,6 +32,8 @@ app.post("/voice", (req, res) => {
   res.send(twiml)
 })
 
+
+// Generate voice using ElevenLabs
 app.get("/audio", async (req, res) => {
 
   try {
@@ -50,15 +59,17 @@ app.get("/audio", async (req, res) => {
 
     res.send(response.data)
 
-  } catch (err) {
+  } catch (error) {
 
-    console.log("ElevenLabs Error:", err.response?.data || err.message)
+    console.log("ElevenLabs Error:", error.response?.data || error.message)
 
     res.status(500).send("Voice generation failed")
   }
 
 })
 
+
+// Start server
 app.listen(PORT, () => {
   console.log("AI Call Server running on port", PORT)
 })
