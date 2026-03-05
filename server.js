@@ -64,7 +64,7 @@ app.post("/voice", (req, res) => {
 
   const twiml = new VoiceResponse();
 
-  const audioUrl = `${process.env.RAILWAY_PUBLIC_DOMAIN}/audio`;
+  const audioUrl = `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/audio`;
 
   twiml.play(audioUrl);
 
