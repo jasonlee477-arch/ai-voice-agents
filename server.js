@@ -23,7 +23,7 @@ app.post("/voice", (req, res) => {
 const twiml = `
 <Response>
 
-<Say voice="alice">
+<Say voice="Google.en-IN-Standard-A">
 Namaste. Welcome to Aqua Decor.
 Please tell us what service you need.
 For example shop board, acrylic letters, LED signage, or branding.
@@ -59,7 +59,7 @@ console.log("Customer said:", speech)
 const twiml = `
 <Response>
 
-<Say voice="alice">
+<Say voice="Google.en-IN-Standard-A">
 You said: ${speech}.
 Thank you for contacting Aqua Decor.
 Our team will assist you shortly.
