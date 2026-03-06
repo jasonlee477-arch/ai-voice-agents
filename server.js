@@ -17,23 +17,36 @@ app.get("/", (req, res) => {
 })
 
 
-// Twilio webhook
+// =======================
+// Twilio Call Start
+// =======================
+
 app.post("/voice", (req, res) => {
 
   const audioUrl = `${req.protocol}://${req.get("host")}/audio`
 
   const twiml = `
 <Response>
+
   <Play>${audioUrl}</Play>
+
+  <Gather input="speech" action="/gather" method="POST" speechTimeout="auto">
+    <Say>Please tell us what service you need.</Say>
+  </Gather>
+
 </Response>
 `
 
   res.type("text/xml")
   res.send(twiml)
+
 })
 
 
-// Generate audio
+// =======================
+// Generate Greeting Audio
+// =======================
+
 app.get("/audio", async (req, res) => {
 
   try {
@@ -42,7 +55,7 @@ app.get("/audio", async (req, res) => {
       `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
       {
         text: "Aqua Decor mein aapka swagat hai. Kripya bataye aapko kis tarah ki signage ya branding service chahiye.",
-        model_id: "eleven_multilingual_v2"
+        model_id: "eleven_flash_v2"
       },
       {
         headers: {
@@ -63,7 +76,6 @@ app.get("/audio", async (req, res) => {
 
   } catch (err) {
 
-    // decode buffer error
     if (err.response?.data) {
       console.error("ElevenLabs Error:", err.response.data.toString())
     } else {
@@ -72,7 +84,35 @@ app.get("/audio", async (req, res) => {
 
     res.status(500).send("Voice generation failed")
   }
+
 })
+
+
+// =======================
+// Handle Caller Speech
+// =======================
+
+app.post("/gather", (req, res) => {
+
+  const userSpeech = req.body.SpeechResult || "I did not hear anything."
+
+  console.log("Customer said:", userSpeech)
+
+  const twiml = `
+<Response>
+  <Say>You said: ${userSpeech}. Thank you for contacting Aqua Decor. Our team will assist you shortly.</Say>
+</Response>
+`
+
+  res.type("text/xml")
+  res.send(twiml)
+
+})
+
+
+// =======================
+// Start Server
+// =======================
 
 app.listen(PORT, () => {
   console.log("AI Call Server running on port", PORT)
